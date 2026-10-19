@@ -13,6 +13,12 @@ CSPELL_VERSION_NO="$($CSPELL_EXEC --version)"
 CSPELL_VERSION="$CSPELL_EXEC ($CSPELL_VERSION_NO)"
 export CSPELL_VERSION
 
+CLANG_FORMAT_EXEC=$(which clang-format)
+export CLANG_FORMAT_EXEC
+
+CLANG_FORMAT_VERSION="$($CLANG_FORMAT_EXEC --version | awk '{print $4}')"
+export CLANG_FORMAT_VERSION
+
 # =====================================
 # Private functions
 # =====================================

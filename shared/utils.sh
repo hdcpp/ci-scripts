@@ -111,7 +111,7 @@ function dump_env() {
 }
 
 #######################################
-# Print the entire command and run it if the DRY_RUN flag is set.
+# Print the entire command and run it if the DRY_RUN flag is not set.
 # Globals:
 #   DRY_RUN
 # Arguments:
@@ -122,9 +122,9 @@ function dump_env() {
 function run_command() {
     local cmd=("$@")
 
-    STACK_LEVEL=2 log_info "$(printf "Running: %s\n" "${cmd[*]}")"
-
     if [[ -z "$DRY_RUN" ]]; then
         "${cmd[@]}"
+    else
+        STACK_LEVEL=2 log_info "$(printf "Running: %s\n" "${cmd[*]}")"
     fi
 }

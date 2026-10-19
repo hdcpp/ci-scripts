@@ -60,6 +60,8 @@ function _parse_args() {
             ;;
         esac
     done
+
+    dump_env CSPELL_VERSION DRY_RUN
 }
 
 #######################################
@@ -70,23 +72,31 @@ function _parse_args() {
 function _find_target_paths() {
     local target_paths=()
 
-    if [[ -d "${PROJECT_DIR}/doc" ]]; then
-        target_paths+=("${PROJECT_DIR}/doc")
+    local doc_dir="${PROJECT_DIR}/doc"
+    if [[ -d "$doc_dir" ]]; then
+        log_info "Detected '$doc_dir'"
+        target_paths+=("$doc_dir")
     fi
 
-    if [[ -d "${PROJECT_DIR}/product" ]]; then
-        target_paths+=("${PROJECT_DIR}/product")
+    local product_dir="${PROJECT_DIR}/product"
+    if [[ -d "$product_dir" ]]; then
+        log_info "Detected '$product_dir'"
+        target_paths+=("$product_dir")
     fi
 
-    if [[ -f "${PROJECT_DIR}/CMakeLists.txt" ]]; then
-        target_paths+=("${PROJECT_DIR}/CMakeLists.txt")
+    local cmake_file="${PROJECT_DIR}/CMakeLists.txt"
+    if [[ -f "$cmake_file" ]]; then
+        log_info "Detected '$cmake_file'"
+        target_paths+=("$cmake_file")
     fi
 
-    if [[ -f "${PROJECT_DIR}/conanfile.py" ]]; then
-        target_paths+=("${PROJECT_DIR}/conanfile.py")
+    local conan_file="${PROJECT_DIR}/conanfile.py"
+    if [[ -f "$conan_file" ]]; then
+        log_info "Detected '$conan_file'"
+        target_paths+=("$conan_file")
     fi
 
-    echo "${target_paths[@]}"
+    FUNC_STDOUT="${target_paths[*]}"
 }
 
 #######################################
@@ -96,8 +106,12 @@ function _find_target_paths() {
 #   CSPELL_EXEC
 #######################################
 function _check_prerequisites() {
+    log_info "Check if cspell is installed"
+
     assert_empty CSPELL_VERSION
     assert_empty CSPELL_EXEC
+
+    log_info "Check if cspell is installed...OK"
 }
 
 # =====================================
@@ -116,13 +130,20 @@ function main() {
 
     _parse_args "$@"
 
-    IFS=" " read -r -a TARGET_PATHS <<<"$(_find_target_paths)"
-
-    dump_env "CSPELL_VERSION" "TARGET_PATHS" "DRY_RUN"
+    _find_target_paths
+    IFS=" " read -r -a target_paths <<<"$FUNC_STDOUT"
 
     _check_prerequisites
 
-    run_command "$CSPELL_EXEC" "--gitignore" "${TARGET_PATHS[@]}"
+    run_command "$CSPELL_EXEC" "--gitignore" "${target_paths[@]}"
+    return $?
 }
 
 main "$@"
+
+EXIT_CODE=$?
+if [[ "$EXIT_CODE" -eq 0 ]]; then
+    log_info "PASSED"
+else
+    log_error "FAILED ($EXIT_CODE)"
+fi

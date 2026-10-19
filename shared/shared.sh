@@ -30,6 +30,8 @@ REMOTE_NAME="$(git ls-remote --get-url origin | xargs basename | cut -d'.' -f1)"
 assert_empty REMOTE_NAME
 export REMOTE_NAME
 
+export FUNC_STDOUT=""
+
 # =====================================
 # Private functions
 # =====================================
