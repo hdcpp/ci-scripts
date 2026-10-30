@@ -66,6 +66,8 @@ function _parse_args() {
             ;;
         esac
     done
+
+    dump_env CLANG_FORMAT_VERSION SHOULD_FIX DRY_RUN
 }
 
 #######################################
@@ -76,11 +78,13 @@ function _parse_args() {
 function _find_target_paths() {
     local target_paths=()
 
-    if [[ -d "${PROJECT_DIR}/product" ]]; then
-        target_paths+=("${PROJECT_DIR}/product")
+    local product_dir="${PROJECT_DIR}/product"
+    if [[ -d "$product_dir" ]]; then
+        log_info "Detected '$product_dir'"
+        target_paths+=("$product_dir")
     fi
 
-    echo "${target_paths[@]}"
+    FUNC_STDOUT="${target_paths[*]}"
 }
 
 #######################################
@@ -90,8 +94,12 @@ function _find_target_paths() {
 #   CLANG_FORMAT_EXEC
 #######################################
 function _check_prerequisites() {
+    log_info "Check if clang-format is installed"
+
     assert_empty CLANG_FORMAT_VERSION
     assert_empty CLANG_FORMAT_EXEC
+
+    log_info "Check if clang-format is installed...OK"
 }
 
 #######################################
@@ -233,14 +241,12 @@ function main() {
 
     _parse_args "$@"
 
-    IFS=" " read -r -a TARGET_PATHS <<<"$(_find_target_paths)"
-    log_info "TARGET_PATHS: '${TARGET_PATHS[*]}'"
-
-    dump_env CLANG_FORMAT_VERSION SHOULD_FIX TARGET_PATHS DRY_RUN
+    _find_target_paths
+    IFS=" " read -r -a target_paths <<<"$FUNC_STDOUT"
 
     _check_prerequisites
 
-    _check_format "$SHOULD_FIX" "${TARGET_PATHS[@]}"
+    _check_format "$SHOULD_FIX" "${target_paths[@]}"
     return $?
 }
 

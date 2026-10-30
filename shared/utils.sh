@@ -10,25 +10,6 @@
 # =====================================
 # Private functions
 # =====================================
-#######################################
-# Find the maximum length of array of strings.
-# Arguments:
-#   items: Array of strings
-# Returns:
-#   The length of the longest string
-#######################################
-function _find_max_len() {
-    local items=("$@")
-
-    local max_len=0
-    for item in "${items[@]}"; do
-        if [[ ${#item} -gt $max_len ]]; then
-            max_len=${#item}
-        fi
-    done
-
-    echo "$max_len"
-}
 
 #######################################
 # Check whether the given variable is an array or not.
@@ -63,6 +44,26 @@ function _is_array() {
 # Public functions
 # =====================================
 #######################################
+# Find the maximum length of array of strings.
+# Arguments:
+#   items: Array of strings
+# Returns:
+#   The length of the longest string
+#######################################
+function find_max_len() {
+    local items=("$@")
+
+    local max_len=0
+    for item in "${items[@]}"; do
+        if [[ ${#item} -gt $max_len ]]; then
+            max_len=${#item}
+        fi
+    done
+
+    echo "$max_len"
+}
+
+#######################################
 # Print environment variables with a predefine format.
 # Globals:
 #   PROJECT_DIR
@@ -80,7 +81,7 @@ function dump_env() {
     all_var_names+=("${var_names[@]}")
 
     local column_width=0
-    column_width=$(_find_max_len "${all_var_names[@]}")
+    column_width=$(find_max_len "${all_var_names[@]}")
     column_width=$((column_width + 4))
 
     local separator
